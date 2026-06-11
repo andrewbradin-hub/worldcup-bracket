@@ -25,6 +25,18 @@
   header { text-align: center; padding: 24px 16px 8px; }
   header h1 { font-size: 28px; letter-spacing: 1px; }
   header p { color: var(--muted); margin-top: 4px; font-size: 14px; }
+  .identity {
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+    margin-top: 10px; font-size: 13px; color: var(--muted); flex-wrap: wrap;
+  }
+  .identity b { color: var(--accent); }
+  .status-chip {
+    padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    background: var(--panel2); border: 1px solid #415a77;
+  }
+  .status-chip.synced { color: var(--green); border-color: var(--green); }
+  .status-chip.saving { color: var(--accent); border-color: var(--accent); }
+  .status-chip.offline, .status-chip.error { color: var(--red); border-color: var(--red); }
 
   nav { display: flex; justify-content: center; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
   nav button {
@@ -39,10 +51,6 @@
   .page.visible { display: block; }
 
   .toolbar { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-  .toolbar input[type=text] {
-    background: var(--panel); border: 1px solid #33415c; color: var(--text);
-    padding: 8px 12px; border-radius: 8px; font-size: 14px; width: 180px;
-  }
   .btn {
     background: var(--panel2); color: var(--text); border: 1px solid #415a77;
     padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;
@@ -63,24 +71,12 @@
   .groups-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 12px;
-    max-width: 1240px;
-    margin: 0 auto;
+    gap: 12px; max-width: 1240px; margin: 0 auto;
   }
-  .group-card {
-    background: var(--panel);
-    border: 1px solid #33415c;
-    border-radius: 12px;
-    overflow: hidden;
-  }
+  .group-card { background: var(--panel); border: 1px solid #33415c; border-radius: 12px; overflow: hidden; }
   .group-card h4 {
-    background: var(--panel2);
-    padding: 8px 12px;
-    font-size: 13px;
-    letter-spacing: 1px;
-    color: var(--accent);
-    display: flex;
-    justify-content: space-between;
+    background: var(--panel2); padding: 8px 12px; font-size: 13px;
+    letter-spacing: 1px; color: var(--accent); display: flex; justify-content: space-between;
   }
   .group-card h4 .clear-grp { cursor: pointer; color: var(--muted); font-weight: 400; font-size: 12px; }
   .group-card h4 .clear-grp:hover { color: var(--red); }
@@ -110,9 +106,7 @@
   .thirds-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 10px;
-    max-width: 1240px;
-    margin: 0 auto;
+    gap: 10px; max-width: 1240px; margin: 0 auto;
   }
   .third-card {
     background: var(--panel); border: 1px solid #33415c; border-radius: 10px;
@@ -129,10 +123,7 @@
 
   /* Knockout bracket */
   .bracket-scroll { overflow-x: auto; padding-bottom: 12px; }
-  .bracket {
-    display: flex; gap: 28px; min-width: 1100px;
-    margin: 0 auto; width: max-content; padding: 0 8px;
-  }
+  .bracket { display: flex; gap: 28px; min-width: 1100px; margin: 0 auto; width: max-content; padding: 0 8px; }
   .round { display: flex; flex-direction: column; justify-content: space-around; min-width: 195px; }
   .round h3 {
     text-align: center; font-size: 12px; text-transform: uppercase;
@@ -170,18 +161,35 @@
   .rk-1 .medal::before { content: "🥇"; }
   .rk-2 .medal::before { content: "🥈"; }
   .rk-3 .medal::before { content: "🥉"; }
+  .leader-note { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
 
-  .import-box {
-    max-width: 860px; margin: 20px auto 0;
-    background: var(--panel); border: 1px solid #33415c; border-radius: 12px; padding: 16px;
+  .scoring-info { max-width: 860px; margin: 16px auto 0; color: var(--muted); font-size: 13px; text-align: center; }
+
+  /* Join modal */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(5, 10, 18, .82);
+    display: none; align-items: center; justify-content: center; z-index: 50;
   }
-  .import-box h3 { font-size: 15px; margin-bottom: 8px; }
-  .import-box textarea {
-    width: 100%; height: 70px; background: var(--bg);
-    border: 1px solid #33415c; border-radius: 8px; color: var(--text);
-    padding: 8px; font-family: monospace; font-size: 12px; resize: vertical;
+  .overlay.visible { display: flex; }
+  .modal {
+    background: var(--panel); border: 1px solid #415a77; border-radius: 16px;
+    padding: 28px; width: min(380px, 92vw); text-align: center;
   }
-  .import-box .row { display: flex; gap: 8px; margin-top: 8px; }
+  .modal h2 { font-size: 20px; margin-bottom: 6px; }
+  .modal p { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+  .modal input {
+    width: 100%; background: var(--bg); border: 1px solid #33415c; color: var(--text);
+    padding: 12px; border-radius: 10px; font-size: 16px; text-align: center; margin-bottom: 8px;
+  }
+  .modal .err { color: var(--red); font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+  .modal .btn { width: 100%; padding: 12px; font-size: 15px; }
+
+  .banner {
+    max-width: 700px; margin: 0 auto 12px; text-align: center;
+    background: #3a2b14; border: 1px solid var(--accent); color: var(--accent);
+    border-radius: 10px; padding: 10px 16px; font-size: 13px; display: none;
+  }
+  .banner.visible { display: block; }
 
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -190,8 +198,6 @@
     transition: opacity .3s; z-index: 99;
   }
   .toast.show { opacity: 1; }
-
-  .scoring-info { max-width: 860px; margin: 16px auto 0; color: var(--muted); font-size: 13px; text-align: center; }
 </style>
 </head>
 <body>
@@ -199,20 +205,24 @@
 <header>
   <h1>⚽ World Cup 2026 Bracket Challenge 🏆</h1>
   <p>48 teams · 12 groups · pick your qualifiers, fill the knockout bracket, beat your friends.</p>
+  <div class="identity">
+    <span id="who"></span>
+    <span class="status-chip" id="status-chip">…</span>
+  </div>
 </header>
 
 <nav>
   <button data-page="mypicks" class="active">My Picks</button>
   <button data-page="results">Actual Results</button>
-  <button data-page="leaderboard">Leaderboard &amp; Friends</button>
+  <button data-page="leaderboard">Leaderboard</button>
 </nav>
+
+<div class="banner" id="offline-banner">⚠️ Online league not reachable — your picks are saved on this device and will sync when it's back.</div>
 
 <!-- MY PICKS -->
 <section class="page visible" id="page-mypicks">
   <div class="toolbar">
-    <input type="text" id="player-name" placeholder="Your name" maxlength="20">
-    <button class="btn primary" id="share-btn">📋 Copy share code</button>
-    <button class="btn danger" id="reset-my">Reset all picks</button>
+    <button class="btn danger" id="reset-my">Reset all my picks</button>
   </div>
 
   <h2 class="section-title">1 · Group Stage</h2>
@@ -232,10 +242,9 @@
 <!-- ACTUAL RESULTS -->
 <section class="page" id="page-results">
   <div class="toolbar">
-    <button class="btn primary" id="share-results-btn">📋 Copy results code</button>
     <button class="btn danger" id="reset-results">Clear results</button>
   </div>
-  <p class="hint">As the real tournament unfolds, enter the actual group standings, the real best-thirds, and knockout winners here. Everyone's score updates against these. One friend can maintain results and share the code — paste it on the Leaderboard tab to sync.</p>
+  <p class="hint">As the real tournament unfolds, enter the actual group standings, real best-thirds, and knockout winners here. They sync to the whole league automatically — anyone can help keep them up to date.</p>
 
   <h2 class="section-title">Actual Group Standings</h2>
   <div class="groups-grid" id="res-groups"></div>
@@ -252,29 +261,33 @@
 <section class="page" id="page-leaderboard">
   <div class="leader-wrap">
     <table>
-      <thead><tr><th></th><th>Player</th><th>Champion pick</th><th>Groups</th><th>Knockout</th><th>Total</th><th></th></tr></thead>
+      <thead><tr><th></th><th>Player</th><th>Champion pick</th><th>Groups</th><th>Knockout</th><th>Total</th></tr></thead>
       <tbody id="leader-body"></tbody>
     </table>
+    <p class="leader-note" id="leader-note"></p>
     <p class="scoring-info">
       Scoring — Group stage: <b>1 pt</b> per team you correctly send to the Round of 32 (max 32).
       Knockout: Round of 32 winners <b>1 pt</b> · Round of 16 <b>2 pts</b> · Quarter-finals <b>4 pts</b> ·
       Semi-finals <b>8 pts</b> · Champion <b>16 pts</b> (max 80). Grand total: 112 pts.
     </p>
   </div>
-
-  <div class="import-box">
-    <h3>➕ Add a friend's bracket</h3>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:8px;">Ask your friend to hit "Copy share code" on their picks and send it to you. Paste it below. Results codes sync the actual results instead.</p>
-    <textarea id="import-area" placeholder="Paste a share code here…"></textarea>
-    <div class="row"><button class="btn primary" id="import-btn">Import</button></div>
-  </div>
 </section>
+
+<!-- JOIN MODAL -->
+<div class="overlay" id="join-overlay">
+  <div class="modal">
+    <h2>⚽ Join the league</h2>
+    <p>Pick a username and start predicting. Your bracket saves automatically and shows up on everyone's leaderboard.</p>
+    <input type="text" id="join-name" placeholder="Your name" maxlength="20" autocomplete="off">
+    <div class="err" id="join-err"></div>
+    <button class="btn primary" id="join-btn">Let's go!</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 // ---------- Teams: the real 2026 draw — 12 groups of 4 ----------
-// Team index = groupIndex*4 + slot
 const GROUPS = [
   { letter: "A", teams: [["Mexico","🇲🇽"],["South Korea","🇰🇷"],["Czechia","🇨🇿"],["South Africa","🇿🇦"]] },
   { letter: "B", teams: [["Canada","🇨🇦"],["Switzerland","🇨🇭"],["Bosnia & Herz.","🇧🇦"],["Qatar","🇶🇦"]] },
@@ -294,9 +307,6 @@ GROUPS.forEach((g, gi) => g.teams.forEach(([n, f]) => TEAMS.push({ n, f, g: gi }
 const L = i => GROUPS[i].letter;
 
 // ---------- FIFA's official Round of 32 layout (matches 73–88) ----------
-// Display order is arranged so adjacent pairs feed the correct Round of 16 match,
-// per the official schedule (M89: W74 v W77, M90: W73 v W75, … M101: W97 v W98, M102: W99 v W100).
-// W = group winner, RU = runner-up, T3 = best third from one of the allowed groups.
 const W = g => ({ k: "W", g }), RU = g => ({ k: "RU", g }), T3 = (...gs) => ({ k: "T3", gs });
 const G = { A:0,B:1,C:2,D:3,E:4,F:5,G:6,H:7,I:8,J:9,K:10,L:11 };
 const R32 = [
@@ -324,9 +334,6 @@ const KO_MATCHES = [16, 8, 4, 2, 1];
 const KO_POINTS = [1, 2, 4, 8, 16];
 
 // ---------- State ----------
-// state = { groups: 12 arrays of team indices in predicted finish order (0–4 entries),
-//           thirds: array of group indices (the 8 chosen best thirds),
-//           ko: 5 arrays of winner team indices (or null) }
 function emptyState() {
   return { groups: GROUPS.map(() => []), thirds: [], ko: KO_MATCHES.map(n => Array(n).fill(null)) };
 }
@@ -360,17 +367,120 @@ const store = {
 
 let my = normalizeState(store.load("wc26_my", null));
 let actual = normalizeState(store.load("wc26_actual", null));
-let friends = store.load("wc26_friends", []); // [{name, state}]
+let actualUpdated = store.load("wc26_actual_updated", 0);
 let myName = store.load("wc26_name", "");
+let mySecret = store.load("wc26_secret", "");
+if (!mySecret) {
+  mySecret = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, "0")).join("");
+  store.save("wc26_secret", mySecret);
+}
 
-// ---------- Seeding the Round of 32 ----------
-// Assign the 8 chosen third-place groups to the 8 third-place bracket slots,
-// respecting FIFA's allowed-group constraints (deterministic backtracking).
+// ---------- League sync (KVdb backend, configured via league.json) ----------
+let BUCKET = "";
+let online = false;
+let joined = false;
+let remotePlayers = []; // [{name, state, updated}]
+const API = () => "https://kvdb.io/" + BUCKET;
+const nameKey = name => "p:" + name.trim().toLowerCase();
+
+async function kvGet(key) {
+  const r = await fetch(API() + "/" + encodeURIComponent(key), { cache: "no-store" });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error("kv get " + r.status);
+  const txt = await r.text();
+  try { return JSON.parse(txt); } catch { return null; }
+}
+async function kvPut(key, val) {
+  const r = await fetch(API() + "/" + encodeURIComponent(key), { method: "PUT", body: JSON.stringify(val) });
+  if (!r.ok) throw new Error("kv put " + r.status);
+}
+async function kvListPlayers() {
+  const r = await fetch(API() + "/?prefix=p%3A&values=true&format=json", { cache: "no-store" });
+  if (!r.ok) throw new Error("kv list " + r.status);
+  const j = await r.json();
+  if (!Array.isArray(j)) return [];
+  return j.map(e => {
+    let key, value;
+    if (Array.isArray(e)) { key = e[0]; value = e[1]; }
+    else if (e && typeof e === "object") { key = e.key; value = e.value; }
+    if (typeof value === "string") { try { value = JSON.parse(value); } catch { value = null; } }
+    return value && value.name && value.state ? value : null;
+  }).filter(Boolean);
+}
+
+function setStatus(kind, label) {
+  const chip = document.getElementById("status-chip");
+  chip.className = "status-chip " + kind;
+  chip.textContent = label;
+  document.getElementById("offline-banner").classList.toggle("visible", kind === "error" && joined);
+}
+
+let pushMineTimer = null;
+function queuePushMine() {
+  if (!online || !joined) return;
+  setStatus("saving", "Saving…");
+  clearTimeout(pushMineTimer);
+  pushMineTimer = setTimeout(async () => {
+    try {
+      await kvPut(nameKey(myName), { name: myName, secret: mySecret, updated: Date.now(), state: my });
+      setStatus("synced", "✓ Synced");
+    } catch { setStatus("error", "Sync failed — retrying"); setTimeout(queuePushMine, 8000); }
+  }, 1200);
+}
+
+let pushActTimer = null;
+function queuePushActuals() {
+  if (!online || !joined) return;
+  actualUpdated = Date.now();
+  store.save("wc26_actual_updated", actualUpdated);
+  setStatus("saving", "Saving…");
+  clearTimeout(pushActTimer);
+  pushActTimer = setTimeout(async () => {
+    try {
+      await kvPut("actuals", { updated: actualUpdated, by: myName, state: actual });
+      setStatus("synced", "✓ Synced");
+    } catch { setStatus("error", "Sync failed — retrying"); setTimeout(queuePushActuals, 8000); }
+  }, 1200);
+}
+
+async function refreshLeague() {
+  if (!online) return;
+  try {
+    const [players, act] = await Promise.all([kvListPlayers(), kvGet("actuals")]);
+    remotePlayers = players;
+    if (act && act.state && (act.updated || 0) > actualUpdated) {
+      actual = normalizeState(act.state);
+      actualUpdated = act.updated || 0;
+      store.save("wc26_actual", actual);
+      store.save("wc26_actual_updated", actualUpdated);
+      renderActualView();
+      renderMyView();
+    }
+    renderLeaderboard();
+    if (joined) setStatus("synced", "✓ Synced");
+  } catch {
+    if (joined) setStatus("error", "League unreachable");
+  }
+}
+
+async function joinLeague(rawName) {
+  const name = rawName.trim();
+  if (!/^[\w .\-]{2,20}$/.test(name)) throw new Error("2–20 letters, numbers, spaces, . _ -");
+  const existing = await kvGet(nameKey(name));
+  if (existing && existing.secret && existing.secret !== mySecret) {
+    throw new Error("That name is taken — pick another!");
+  }
+  myName = name;
+  store.save("wc26_name", myName);
+  joined = true;
+  await kvPut(nameKey(myName), { name: myName, secret: mySecret, updated: Date.now(), state: my });
+}
+
+// ---------- Bracket seeding (unchanged logic) ----------
 function assignThirds(state) {
   if (state.thirds.length !== 8) return null;
   const groups = [...state.thirds].sort((a, b) => a - b);
   if (groups.some(g => state.groups[g].length < 3)) return null;
-  // try most-constrained slots first for fast, deterministic search
   const slots = [...THIRD_SLOTS].sort((s1, s2) =>
     s1.allowed.filter(g => groups.includes(g)).length - s2.allowed.filter(g => groups.includes(g)).length);
   const used = new Set(), res = {};
@@ -404,7 +514,6 @@ function koCompetitors(state, seeds, r, m) {
   return [state.ko[r - 1][2 * m], state.ko[r - 1][2 * m + 1]];
 }
 
-// Clear any knockout pick that is no longer one of its match's competitors.
 function validateKO(state) {
   const seeds = seedR32(state);
   for (let r = 0; r < 5; r++) for (let m = 0; m < KO_MATCHES[r]; m++) {
@@ -414,13 +523,6 @@ function validateKO(state) {
   return seeds;
 }
 
-function setKOPick(state, r, m, team) {
-  state.ko[r][m] = team;
-  validateKO(state);
-}
-
-// ---------- Qualification & scoring ----------
-// Returns { qualified: Set, eliminated: Set } from a state's group + thirds picks.
 function qualification(state) {
   const qualified = new Set(), eliminated = new Set();
   const thirdsComplete = state.thirds.length === 8;
@@ -442,14 +544,14 @@ function scoreState(state, act) {
   const actQ = qualification(act).qualified;
   let gPts = 0;
   for (const t of myQ) if (actQ.has(t)) gPts++;
-  let koPts = 0, koCorrect = 0;
+  let koPts = 0;
   for (let r = 0; r < 5; r++) for (let m = 0; m < KO_MATCHES[r]; m++) {
-    if (state.ko[r][m] !== null && state.ko[r][m] === act.ko[r][m]) { koPts += KO_POINTS[r]; koCorrect++; }
+    if (state.ko[r][m] !== null && state.ko[r][m] === act.ko[r][m]) koPts += KO_POINTS[r];
   }
-  return { gPts, koPts, koCorrect, total: gPts + koPts };
+  return { gPts, koPts, total: gPts + koPts };
 }
 
-// ---------- Rendering: groups ----------
+// ---------- Rendering ----------
 function renderGroups(containerId, state, opts) {
   const wrap = document.getElementById(containerId);
   wrap.innerHTML = "";
@@ -484,9 +586,9 @@ function renderGroups(containerId, state, opts) {
         row.addEventListener("click", () => {
           const order = state.groups[gi];
           const pos = order.indexOf(ti);
-          if (pos >= 0) order.length = pos;            // re-pick from this rank
+          if (pos >= 0) order.length = pos;
           else if (order.length < 4) order.push(ti);
-          if (order.length === 3) {                    // 4th place is forced
+          if (order.length === 3) {
             for (let s = 0; s < 4; s++) if (!order.includes(gi * 4 + s)) order.push(gi * 4 + s);
           }
           opts.onChange();
@@ -498,7 +600,6 @@ function renderGroups(containerId, state, opts) {
   });
 }
 
-// ---------- Rendering: thirds selector ----------
 function renderThirds(containerId, counterId, state, opts) {
   const wrap = document.getElementById(containerId);
   wrap.innerHTML = "";
@@ -526,7 +627,6 @@ function renderThirds(containerId, counterId, state, opts) {
   counter.classList.toggle("over", state.thirds.length > 8);
 }
 
-// ---------- Rendering: knockout bracket ----------
 function slotPlaceholder(r, m, which) {
   if (r !== 0) return "— TBD —";
   const side = which === 0 ? R32[m].a : R32[m].b;
@@ -539,7 +639,6 @@ function renderBracket(containerId, state, opts) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
   const seeds = seedR32(state);
-  const cmpSeeds = opts.compareWith ? seedR32(opts.compareWith) : null;
   for (let r = 0; r < 5; r++) {
     const col = document.createElement("div");
     col.className = "round";
@@ -561,7 +660,9 @@ function renderBracket(containerId, state, opts) {
           if (opts.compareWith && state.ko[r][m] === team && opts.compareWith.ko[r][m] !== null) {
             slot.classList.add(team === opts.compareWith.ko[r][m] ? "correct" : "wrong");
           }
-          if (opts.editable) slot.addEventListener("click", () => { setKOPick(state, r, m, team); opts.onChange(); });
+          if (opts.editable) slot.addEventListener("click", () => {
+            state.ko[r][m] = team; validateKO(state); opts.onChange();
+          });
         }
         match.appendChild(slot);
       });
@@ -577,14 +678,17 @@ function renderBracket(containerId, state, opts) {
   container.appendChild(champCol);
 }
 
-// ---------- Leaderboard ----------
 function renderLeaderboard() {
   const body = document.getElementById("leader-body");
-  const entries = [
-    { name: (myName.trim() || "You") + " (you)", state: my, me: true },
-    ...friends.map((f, i) => ({ name: f.name, state: normalizeState(f.state), idx: i }))
-  ].map(e => ({ ...e, ...scoreState(e.state, actual) }))
-   .sort((a, b) => b.total - a.total);
+  const note = document.getElementById("leader-note");
+  const map = new Map();
+  for (const p of remotePlayers) map.set(p.name.toLowerCase(), { name: p.name, state: normalizeState(p.state) });
+  if (joined && myName) map.set(myName.toLowerCase(), { name: myName + " (you)", state: my, me: true });
+  else if (!online && myName) map.set(myName.toLowerCase(), { name: myName + " (you)", state: my, me: true });
+
+  const entries = [...map.values()]
+    .map(e => ({ ...e, ...scoreState(e.state, actual) }))
+    .sort((a, b) => b.total - a.total);
 
   body.innerHTML = "";
   entries.forEach((e, i) => {
@@ -597,17 +701,12 @@ function renderLeaderboard() {
       <td>${champ !== null ? TEAMS[champ].f + " " + TEAMS[champ].n : "—"}</td>
       <td>${e.gPts} pts</td>
       <td>${e.koPts} pts</td>
-      <td class="pts">${e.total}</td>
-      <td>${e.me ? "" : `<button class="btn danger" data-remove="${e.idx}">✕</button>`}</td>`;
+      <td class="pts">${e.total}</td>`;
     body.appendChild(tr);
   });
-  body.querySelectorAll("[data-remove]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      friends.splice(Number(btn.dataset.remove), 1);
-      store.save("wc26_friends", friends);
-      renderLeaderboard();
-    });
-  });
+  note.textContent = online
+    ? (entries.length <= 1 ? "Share the page link with friends — they show up here as soon as they join!" : `${entries.length} players in the league. Updates automatically.`)
+    : "Offline mode — only your own picks are shown.";
 }
 
 function escapeHtml(s) {
@@ -615,38 +714,28 @@ function escapeHtml(s) {
 }
 
 // ---------- Re-render orchestration ----------
-function renderMy() {
+function renderMyView() {
   validateKO(my);
   store.save("wc26_my", my);
-  renderGroups("my-groups", my, { editable: true, compareWith: actual, onChange: renderMy });
-  renderThirds("my-thirds", "my-thirds-counter", my, { editable: true, onChange: renderMy });
-  renderBracket("my-bracket", my, { editable: true, compareWith: actual, onChange: renderMy });
+  renderGroups("my-groups", my, { editable: true, compareWith: actual, onChange: onMyChange });
+  renderThirds("my-thirds", "my-thirds-counter", my, { editable: true, onChange: onMyChange });
+  renderBracket("my-bracket", my, { editable: true, compareWith: actual, onChange: onMyChange });
   const hint = document.getElementById("my-ko-hint");
-  if (assignThirds(my) === "impossible") {
-    hint.textContent = "⚠️ That combination of third-place teams can't be slotted into FIFA's bracket constraints — try a different mix.";
-  } else {
-    hint.textContent = "The Round of 32 fills in automatically from your group picks, paired exactly how FIFA lays out the bracket. Click winners to advance them.";
-  }
-  renderLeaderboard();
+  hint.textContent = assignThirds(my) === "impossible"
+    ? "⚠️ That combination of third-place teams can't be slotted into FIFA's bracket constraints — try a different mix."
+    : "The Round of 32 fills in automatically from your group picks, paired exactly how FIFA lays out the bracket. Click winners to advance them.";
+  document.getElementById("who").innerHTML = myName ? `Playing as <b>${escapeHtml(myName)}</b>` : "";
 }
+function onMyChange() { renderMyView(); renderLeaderboard(); queuePushMine(); }
 
-function renderActual() {
+function renderActualView() {
   validateKO(actual);
   store.save("wc26_actual", actual);
-  renderGroups("res-groups", actual, { editable: true, onChange: renderActual });
-  renderThirds("res-thirds", "res-thirds-counter", actual, { editable: true, onChange: renderActual });
-  renderBracket("res-bracket", actual, { editable: true, onChange: renderActual });
-  renderMyView();
+  renderGroups("res-groups", actual, { editable: true, onChange: onActualChange });
+  renderThirds("res-thirds", "res-thirds-counter", actual, { editable: true, onChange: onActualChange });
+  renderBracket("res-bracket", actual, { editable: true, onChange: onActualChange });
 }
-function renderMyView() { renderMy(); } // my view depends on actuals for ✓/✗
-
-// ---------- Share codes ----------
-function encodeCode(obj) { return "WC26:" + btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
-function decodeCode(str) {
-  const s = str.trim();
-  if (!s.startsWith("WC26:")) throw new Error("bad prefix");
-  return JSON.parse(decodeURIComponent(escape(atob(s.slice(5)))));
-}
+function onActualChange() { renderActualView(); renderMyView(); renderLeaderboard(); queuePushActuals(); }
 
 function toast(msg) {
   const t = document.getElementById("toast");
@@ -656,15 +745,6 @@ function toast(msg) {
   t._timer = setTimeout(() => t.classList.remove("show"), 2600);
 }
 
-async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); return true; }
-  catch {
-    const ta = document.createElement("textarea");
-    ta.value = text; document.body.appendChild(ta); ta.select();
-    const ok = document.execCommand("copy"); ta.remove(); return ok;
-  }
-}
-
 // ---------- Wire up ----------
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -672,59 +752,68 @@ document.querySelectorAll("nav button").forEach(btn => {
     btn.classList.add("active");
     document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
     document.getElementById("page-" + btn.dataset.page).classList.add("visible");
+    if (btn.dataset.page === "leaderboard") refreshLeague();
   });
-});
-
-const nameInput = document.getElementById("player-name");
-nameInput.value = myName;
-nameInput.addEventListener("input", () => { myName = nameInput.value; store.save("wc26_name", myName); renderLeaderboard(); });
-
-document.getElementById("share-btn").addEventListener("click", async () => {
-  if (!myName.trim()) { toast("Enter your name first!"); nameInput.focus(); return; }
-  if (my.ko[4][0] === null) { toast("Finish your bracket first — pick a champion!"); return; }
-  const code = encodeCode({ type: "bracket", name: myName.trim(), state: my });
-  (await copyText(code)) ? toast("Share code copied! Send it to your friends 📤") : toast("Couldn't copy — try again.");
-});
-
-document.getElementById("share-results-btn").addEventListener("click", async () => {
-  const code = encodeCode({ type: "results", state: actual });
-  (await copyText(code)) ? toast("Results code copied!") : toast("Couldn't copy.");
 });
 
 document.getElementById("reset-my").addEventListener("click", () => {
   if (!confirm("Clear ALL your picks (groups, thirds, and bracket)?")) return;
-  my = emptyState(); renderMy();
+  my = emptyState();
+  renderMyView(); renderLeaderboard(); queuePushMine();
 });
 
 document.getElementById("reset-results").addEventListener("click", () => {
-  if (!confirm("Clear all actual results?")) return;
-  actual = emptyState(); renderActual();
+  if (!confirm("Clear all actual results for the WHOLE league?")) return;
+  actual = emptyState();
+  renderActualView(); renderMyView(); renderLeaderboard(); queuePushActuals();
 });
 
-document.getElementById("import-btn").addEventListener("click", () => {
-  const area = document.getElementById("import-area");
-  let data;
-  try { data = decodeCode(area.value); }
-  catch { toast("That code doesn't look right — check you copied the whole thing."); return; }
-  if (data.type === "results") {
-    actual = normalizeState(data.state);
-    renderActual();
-    toast("Actual results updated! ✅");
-  } else if (data.type === "bracket" && data.name) {
-    const name = String(data.name).slice(0, 20);
-    const entry = { name, state: normalizeState(data.state) };
-    const existing = friends.findIndex(f => f.name === name);
-    if (existing >= 0) friends[existing] = entry; else friends.push(entry);
-    store.save("wc26_friends", friends);
-    renderLeaderboard();
-    toast(`${name}'s bracket added! 🎉`);
-  } else {
-    toast("Unrecognized code."); return;
+const joinBtn = document.getElementById("join-btn");
+const joinInput = document.getElementById("join-name");
+async function tryJoin() {
+  const err = document.getElementById("join-err");
+  err.textContent = "";
+  joinBtn.disabled = true; joinBtn.textContent = "Joining…";
+  try {
+    await joinLeague(joinInput.value);
+    document.getElementById("join-overlay").classList.remove("visible");
+    setStatus("synced", "✓ Synced");
+    renderMyView(); renderLeaderboard();
+    toast(`Welcome, ${myName}! Make your picks ⚽`);
+  } catch (e) {
+    err.textContent = e.message || "Couldn't join — try again.";
+  } finally {
+    joinBtn.disabled = false; joinBtn.textContent = "Let's go!";
   }
-  area.value = "";
-});
+}
+joinBtn.addEventListener("click", tryJoin);
+joinInput.addEventListener("keydown", e => { if (e.key === "Enter") tryJoin(); });
 
-renderActual(); // also renders My view + leaderboard
+// ---------- Boot ----------
+(async () => {
+  renderMyView(); renderActualView(); renderLeaderboard();
+  try {
+    const cfg = await (await fetch("league.json?t=" + Date.now(), { cache: "no-store" })).json();
+    BUCKET = (cfg && cfg.bucket) || "";
+  } catch { BUCKET = ""; }
+  online = !!BUCKET;
+  if (!online) {
+    setStatus("offline", "Local only");
+    document.getElementById("who").innerHTML = myName ? `Playing as <b>${escapeHtml(myName)}</b>` : "";
+    return;
+  }
+  if (myName) {
+    // returning player: re-claim seat silently
+    try { await joinLeague(myName); setStatus("synced", "✓ Synced"); }
+    catch { joined = false; document.getElementById("join-overlay").classList.add("visible"); }
+  } else {
+    setStatus("offline", "Not joined yet");
+    document.getElementById("join-overlay").classList.add("visible");
+    joinInput.focus();
+  }
+  await refreshLeague();
+  setInterval(refreshLeague, 60000);
+})();
 </script>
 </body>
 </html>

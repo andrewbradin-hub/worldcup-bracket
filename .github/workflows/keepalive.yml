@@ -1,0 +1,36 @@
+name: League keep-alive & backup
+on:
+  schedule:
+    - cron: "17 6 * * *"   # daily — refreshes KVdb key TTLs and snapshots league data
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refresh keys and snapshot
+        run: |
+          set -e
+          BUCKET=$(jq -r '.bucket // empty' league.json)
+          if [ -z "$BUCKET" ]; then echo "League not configured yet; nothing to do."; exit 0; fi
+          API="https://kvdb.io/$BUCKET"
+          mkdir -p backup
+          curl -fsS "$API/?values=true&format=json" -o backup/snapshot.json
+          echo "Snapshot: $(jq 'length' backup/snapshot.json) keys"
+          # Re-PUT every key with its current value to refresh the TTL
+          jq -c '.[]' backup/snapshot.json | while read -r row; do
+            key=$(echo "$row" | jq -r 'if type=="array" then .[0] else .key end')
+            val=$(echo "$row" | jq -r 'if type=="array" then .[1] else .value end')
+            ekey=$(printf %s "$key" | jq -sRr @uri)
+            curl -fsS -X PUT "$API/$ekey" --data-raw "$val" > /dev/null
+            echo "refreshed: $key"
+          done
+      - name: Commit snapshot
+        run: |
+          git config user.name "league-bot"
+          git config user.email "actions@github.com"
+          git add backup/snapshot.json || true
+          git diff --cached --quiet || git commit -m "Daily league snapshot"
+          git push
