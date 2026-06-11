@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 Bracket Challenge</title>
+<style>
+  :root {
+    --bg: #0d1b2a;
+    --panel: #1b263b;
+    --panel2: #243b55;
+    --accent: #ffd166;
+    --green: #06d6a0;
+    --red: #ef476f;
+    --text: #e0e1dd;
+    --muted: #8d99ae;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  header { text-align: center; padding: 24px 16px 8px; }
+  header h1 { font-size: 28px; letter-spacing: 1px; }
+  header p { color: var(--muted); margin-top: 4px; font-size: 14px; }
+
+  nav { display: flex; justify-content: center; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+  nav button {
+    background: var(--panel); color: var(--text);
+    border: 1px solid #33415c; padding: 10px 20px; border-radius: 999px;
+    cursor: pointer; font-size: 14px; font-weight: 600; transition: all .15s;
+  }
+  nav button:hover { background: var(--panel2); }
+  nav button.active { background: var(--accent); color: #0d1b2a; border-color: var(--accent); }
+
+  .page { display: none; padding: 0 16px 48px; }
+  .page.visible { display: block; }
+
+  .toolbar { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar input[type=text] {
+    background: var(--panel); border: 1px solid #33415c; color: var(--text);
+    padding: 8px 12px; border-radius: 8px; font-size: 14px; width: 180px;
+  }
+  .btn {
+    background: var(--panel2); color: var(--text); border: 1px solid #415a77;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  .btn:hover { filter: brightness(1.2); }
+  .btn.primary { background: var(--accent); color: #0d1b2a; border-color: var(--accent); }
+  .btn.danger { background: transparent; color: var(--red); border-color: var(--red); }
+
+  .hint { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+
+  .section-title {
+    text-align: center; font-size: 14px; text-transform: uppercase;
+    letter-spacing: 3px; color: var(--accent); margin: 28px 0 12px;
+  }
+  .section-title:first-of-type { margin-top: 8px; }
+
+  /* Group stage */
+  .groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 12px;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .group-card {
+    background: var(--panel);
+    border: 1px solid #33415c;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .group-card h4 {
+    background: var(--panel2);
+    padding: 8px 12px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    display: flex;
+    justify-content: space-between;
+  }
+  .group-card h4 .clear-grp { cursor: pointer; color: var(--muted); font-weight: 400; font-size: 12px; }
+  .group-card h4 .clear-grp:hover { color: var(--red); }
+  .g-team {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; cursor: pointer; font-size: 14px;
+    border-bottom: 1px solid #2a3950; min-height: 36px;
+  }
+  .g-team:last-child { border-bottom: none; }
+  .g-team:hover { background: var(--panel2); }
+  .g-team .flag { font-size: 17px; }
+  .g-team .name { flex: 1; }
+  .rank-badge {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+    background: #33415c; color: var(--muted);
+  }
+  .rank-badge.r0, .rank-badge.r1 { background: var(--green); color: #0d1b2a; }
+  .rank-badge.r2 { background: var(--accent); color: #0d1b2a; }
+  .rank-badge.r3 { background: #33415c; color: var(--muted); }
+  .g-team .mark { font-size: 13px; width: 16px; text-align: center; }
+  .mark.ok { color: var(--green); }
+  .mark.bad { color: var(--red); }
+
+  /* Thirds selector */
+  .thirds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .third-card {
+    background: var(--panel); border: 1px solid #33415c; border-radius: 10px;
+    padding: 10px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    font-size: 13px; transition: all .1s;
+  }
+  .third-card:hover { background: var(--panel2); }
+  .third-card.sel { border-color: var(--green); background: #1f4e3d; }
+  .third-card.disabled { opacity: .45; cursor: default; font-style: italic; }
+  .third-card .grp-letter { font-weight: 800; color: var(--accent); width: 18px; }
+  .thirds-counter { text-align: center; font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  .thirds-counter b { color: var(--green); }
+  .thirds-counter.over b { color: var(--red); }
+
+  /* Knockout bracket */
+  .bracket-scroll { overflow-x: auto; padding-bottom: 12px; }
+  .bracket {
+    display: flex; gap: 28px; min-width: 1100px;
+    margin: 0 auto; width: max-content; padding: 0 8px;
+  }
+  .round { display: flex; flex-direction: column; justify-content: space-around; min-width: 195px; }
+  .round h3 {
+    text-align: center; font-size: 12px; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--accent); margin-bottom: 10px;
+  }
+  .match { background: var(--panel); border: 1px solid #33415c; border-radius: 10px; margin: 6px 0; overflow: hidden; }
+  .slot {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+    cursor: pointer; font-size: 14px; border-bottom: 1px solid #33415c;
+    transition: background .1s; min-height: 36px;
+  }
+  .slot:last-child { border-bottom: none; }
+  .slot:hover { background: var(--panel2); }
+  .slot.empty { color: var(--muted); cursor: default; font-style: italic; font-size: 12px; }
+  .slot.picked { background: #1f4e3d; }
+  .slot.picked .name { color: var(--green); font-weight: 700; }
+  .slot.correct { box-shadow: inset 3px 0 0 var(--green); }
+  .slot.wrong .name { text-decoration: line-through; color: var(--red); }
+  .slot .flag { font-size: 18px; }
+
+  .champion-box {
+    background: var(--panel); border: 2px solid var(--accent); border-radius: 12px;
+    padding: 14px; text-align: center; align-self: center;
+  }
+  .champion-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); }
+  .champion-box .champ { font-size: 20px; font-weight: 800; margin-top: 6px; }
+
+  /* Leaderboard */
+  .leader-wrap { max-width: 860px; margin: 0 auto; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 12px; overflow: hidden; }
+  th, td { padding: 12px 14px; text-align: left; font-size: 14px; }
+  th { background: var(--panel2); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: var(--accent); }
+  tr:not(:last-child) td { border-bottom: 1px solid #33415c; }
+  td.pts { font-weight: 800; color: var(--green); font-size: 16px; }
+  .rk-1 .medal::before { content: "🥇"; }
+  .rk-2 .medal::before { content: "🥈"; }
+  .rk-3 .medal::before { content: "🥉"; }
+
+  .import-box {
+    max-width: 860px; margin: 20px auto 0;
+    background: var(--panel); border: 1px solid #33415c; border-radius: 12px; padding: 16px;
+  }
+  .import-box h3 { font-size: 15px; margin-bottom: 8px; }
+  .import-box textarea {
+    width: 100%; height: 70px; background: var(--bg);
+    border: 1px solid #33415c; border-radius: 8px; color: var(--text);
+    padding: 8px; font-family: monospace; font-size: 12px; resize: vertical;
+  }
+  .import-box .row { display: flex; gap: 8px; margin-top: 8px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #0d1b2a; font-weight: 700;
+    padding: 12px 24px; border-radius: 999px; opacity: 0; pointer-events: none;
+    transition: opacity .3s; z-index: 99;
+  }
+  .toast.show { opacity: 1; }
+
+  .scoring-info { max-width: 860px; margin: 16px auto 0; color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚽ World Cup 2026 Bracket Challenge 🏆</h1>
+  <p>48 teams · 12 groups · pick your qualifiers, fill the knockout bracket, beat your friends.</p>
+</header>
+
+<nav>
+  <button data-page="mypicks" class="active">My Picks</button>
+  <button data-page="results">Actual Results</button>
+  <button data-page="leaderboard">Leaderboard &amp; Friends</button>
+</nav>
+
+<!-- MY PICKS -->
+<section class="page visible" id="page-mypicks">
+  <div class="toolbar">
+    <input type="text" id="player-name" placeholder="Your name" maxlength="20">
+    <button class="btn primary" id="share-btn">📋 Copy share code</button>
+    <button class="btn danger" id="reset-my">Reset all picks</button>
+  </div>
+
+  <h2 class="section-title">1 · Group Stage</h2>
+  <p class="hint">In each group, click teams in your predicted finishing order: 1st, 2nd, 3rd (4th fills automatically). Top two advance. Click a ranked team to re-pick from there.</p>
+  <div class="groups-grid" id="my-groups"></div>
+
+  <h2 class="section-title">2 · Best Third-Place Teams</h2>
+  <p class="hint">Eight of the twelve third-place teams advance to the Round of 32. Pick which eight make it.</p>
+  <div class="thirds-grid" id="my-thirds"></div>
+  <p class="thirds-counter" id="my-thirds-counter"></p>
+
+  <h2 class="section-title">3 · Knockout Bracket</h2>
+  <p class="hint" id="my-ko-hint">The Round of 32 fills in automatically from your group picks, paired exactly how FIFA lays out the bracket. Click winners to advance them.</p>
+  <div class="bracket-scroll"><div class="bracket" id="my-bracket"></div></div>
+</section>
+
+<!-- ACTUAL RESULTS -->
+<section class="page" id="page-results">
+  <div class="toolbar">
+    <button class="btn primary" id="share-results-btn">📋 Copy results code</button>
+    <button class="btn danger" id="reset-results">Clear results</button>
+  </div>
+  <p class="hint">As the real tournament unfolds, enter the actual group standings, the real best-thirds, and knockout winners here. Everyone's score updates against these. One friend can maintain results and share the code — paste it on the Leaderboard tab to sync.</p>
+
+  <h2 class="section-title">Actual Group Standings</h2>
+  <div class="groups-grid" id="res-groups"></div>
+
+  <h2 class="section-title">Actual Best Third-Place Teams</h2>
+  <div class="thirds-grid" id="res-thirds"></div>
+  <p class="thirds-counter" id="res-thirds-counter"></p>
+
+  <h2 class="section-title">Actual Knockout Results</h2>
+  <div class="bracket-scroll"><div class="bracket" id="res-bracket"></div></div>
+</section>
+
+<!-- LEADERBOARD -->
+<section class="page" id="page-leaderboard">
+  <div class="leader-wrap">
+    <table>
+      <thead><tr><th></th><th>Player</th><th>Champion pick</th><th>Groups</th><th>Knockout</th><th>Total</th><th></th></tr></thead>
+      <tbody id="leader-body"></tbody>
+    </table>
+    <p class="scoring-info">
+      Scoring — Group stage: <b>1 pt</b> per team you correctly send to the Round of 32 (max 32).
+      Knockout: Round of 32 winners <b>1 pt</b> · Round of 16 <b>2 pts</b> · Quarter-finals <b>4 pts</b> ·
+      Semi-finals <b>8 pts</b> · Champion <b>16 pts</b> (max 80). Grand total: 112 pts.
+    </p>
+  </div>
+
+  <div class="import-box">
+    <h3>➕ Add a friend's bracket</h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:8px;">Ask your friend to hit "Copy share code" on their picks and send it to you. Paste it below. Results codes sync the actual results instead.</p>
+    <textarea id="import-area" placeholder="Paste a share code here…"></textarea>
+    <div class="row"><button class="btn primary" id="import-btn">Import</button></div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- Teams: the real 2026 draw — 12 groups of 4 ----------
+// Team index = groupIndex*4 + slot
+const GROUPS = [
+  { letter: "A", teams: [["Mexico","🇲🇽"],["South Korea","🇰🇷"],["Czechia","🇨🇿"],["South Africa","🇿🇦"]] },
+  { letter: "B", teams: [["Canada","🇨🇦"],["Switzerland","🇨🇭"],["Bosnia & Herz.","🇧🇦"],["Qatar","🇶🇦"]] },
+  { letter: "C", teams: [["Brazil","🇧🇷"],["Morocco","🇲🇦"],["Scotland","🏴󠁧󠁢󠁳󠁣󠁴󠁿"],["Haiti","🇭🇹"]] },
+  { letter: "D", teams: [["USA","🇺🇸"],["Türkiye","🇹🇷"],["Australia","🇦🇺"],["Paraguay","🇵🇾"]] },
+  { letter: "E", teams: [["Germany","🇩🇪"],["Ecuador","🇪🇨"],["Ivory Coast","🇨🇮"],["Curaçao","🇨🇼"]] },
+  { letter: "F", teams: [["Netherlands","🇳🇱"],["Japan","🇯🇵"],["Sweden","🇸🇪"],["Tunisia","🇹🇳"]] },
+  { letter: "G", teams: [["Belgium","🇧🇪"],["Iran","🇮🇷"],["Egypt","🇪🇬"],["New Zealand","🇳🇿"]] },
+  { letter: "H", teams: [["Spain","🇪🇸"],["Uruguay","🇺🇾"],["Saudi Arabia","🇸🇦"],["Cape Verde","🇨🇻"]] },
+  { letter: "I", teams: [["France","🇫🇷"],["Norway","🇳🇴"],["Senegal","🇸🇳"],["Iraq","🇮🇶"]] },
+  { letter: "J", teams: [["Argentina","🇦🇷"],["Austria","🇦🇹"],["Algeria","🇩🇿"],["Jordan","🇯🇴"]] },
+  { letter: "K", teams: [["Portugal","🇵🇹"],["Colombia","🇨🇴"],["Uzbekistan","🇺🇿"],["DR Congo","🇨🇩"]] },
+  { letter: "L", teams: [["England","🏴󠁧󠁢󠁥󠁮󠁧󠁿"],["Croatia","🇭🇷"],["Ghana","🇬🇭"],["Panama","🇵🇦"]] }
+];
+const TEAMS = [];
+GROUPS.forEach((g, gi) => g.teams.forEach(([n, f]) => TEAMS.push({ n, f, g: gi })));
+const L = i => GROUPS[i].letter;
+
+// ---------- FIFA's official Round of 32 layout (matches 73–88) ----------
+// Display order is arranged so adjacent pairs feed the correct Round of 16 match,
+// per the official schedule (M89: W74 v W77, M90: W73 v W75, … M101: W97 v W98, M102: W99 v W100).
+// W = group winner, RU = runner-up, T3 = best third from one of the allowed groups.
+const W = g => ({ k: "W", g }), RU = g => ({ k: "RU", g }), T3 = (...gs) => ({ k: "T3", gs });
+const G = { A:0,B:1,C:2,D:3,E:4,F:5,G:6,H:7,I:8,J:9,K:10,L:11 };
+const R32 = [
+  { m: 74, a: W(G.E),  b: T3(G.A,G.B,G.C,G.D,G.F) },
+  { m: 77, a: W(G.I),  b: T3(G.C,G.D,G.F,G.G,G.H) },
+  { m: 73, a: RU(G.A), b: RU(G.B) },
+  { m: 75, a: W(G.F),  b: RU(G.C) },
+  { m: 83, a: RU(G.K), b: RU(G.L) },
+  { m: 84, a: W(G.H),  b: RU(G.J) },
+  { m: 81, a: W(G.D),  b: T3(G.B,G.E,G.F,G.I,G.J) },
+  { m: 82, a: W(G.G),  b: T3(G.A,G.E,G.H,G.I,G.J) },
+  { m: 76, a: W(G.C),  b: RU(G.F) },
+  { m: 78, a: RU(G.E), b: RU(G.I) },
+  { m: 79, a: W(G.A),  b: T3(G.C,G.E,G.F,G.H,G.I) },
+  { m: 80, a: W(G.L),  b: T3(G.E,G.H,G.I,G.J,G.K) },
+  { m: 86, a: W(G.J),  b: RU(G.H) },
+  { m: 88, a: RU(G.D), b: RU(G.G) },
+  { m: 85, a: W(G.B),  b: T3(G.E,G.F,G.G,G.I,G.J) },
+  { m: 87, a: W(G.K),  b: T3(G.D,G.E,G.I,G.J,G.L) }
+];
+const THIRD_SLOTS = R32.map((d, i) => d.b.k === "T3" ? { idx: i, allowed: d.b.gs } : null).filter(Boolean);
+
+const KO_ROUND_NAMES = ["Round of 32", "Round of 16", "Quarter-finals", "Semi-finals", "Final"];
+const KO_MATCHES = [16, 8, 4, 2, 1];
+const KO_POINTS = [1, 2, 4, 8, 16];
+
+// ---------- State ----------
+// state = { groups: 12 arrays of team indices in predicted finish order (0–4 entries),
+//           thirds: array of group indices (the 8 chosen best thirds),
+//           ko: 5 arrays of winner team indices (or null) }
+function emptyState() {
+  return { groups: GROUPS.map(() => []), thirds: [], ko: KO_MATCHES.map(n => Array(n).fill(null)) };
+}
+function normalizeState(s) {
+  const out = emptyState();
+  if (!s || typeof s !== "object") return out;
+  if (Array.isArray(s.groups)) for (let g = 0; g < 12; g++) {
+    const row = Array.isArray(s.groups[g]) ? s.groups[g] : [];
+    const seen = new Set();
+    for (const t of row) {
+      if (Number.isInteger(t) && Math.floor(t / 4) === g && !seen.has(t) && out.groups[g].length < 4) {
+        out.groups[g].push(t); seen.add(t);
+      }
+    }
+  }
+  if (Array.isArray(s.thirds)) out.thirds = [...new Set(s.thirds.filter(g => Number.isInteger(g) && g >= 0 && g < 12))].slice(0, 12);
+  if (Array.isArray(s.ko)) for (let r = 0; r < 5; r++) {
+    const row = Array.isArray(s.ko[r]) ? s.ko[r] : [];
+    for (let m = 0; m < KO_MATCHES[r]; m++) {
+      out.ko[r][m] = Number.isInteger(row[m]) && row[m] >= 0 && row[m] < 48 ? row[m] : null;
+    }
+  }
+  validateKO(out);
+  return out;
+}
+
+const store = {
+  load(key, fb) { try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fb : v; } catch { return fb; } },
+  save(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
+};
+
+let my = normalizeState(store.load("wc26_my", null));
+let actual = normalizeState(store.load("wc26_actual", null));
+let friends = store.load("wc26_friends", []); // [{name, state}]
+let myName = store.load("wc26_name", "");
+
+// ---------- Seeding the Round of 32 ----------
+// Assign the 8 chosen third-place groups to the 8 third-place bracket slots,
+// respecting FIFA's allowed-group constraints (deterministic backtracking).
+function assignThirds(state) {
+  if (state.thirds.length !== 8) return null;
+  const groups = [...state.thirds].sort((a, b) => a - b);
+  if (groups.some(g => state.groups[g].length < 3)) return null;
+  // try most-constrained slots first for fast, deterministic search
+  const slots = [...THIRD_SLOTS].sort((s1, s2) =>
+    s1.allowed.filter(g => groups.includes(g)).length - s2.allowed.filter(g => groups.includes(g)).length);
+  const used = new Set(), res = {};
+  function bt(i) {
+    if (i === slots.length) return true;
+    for (const g of groups) {
+      if (used.has(g) || !slots[i].allowed.includes(g)) continue;
+      used.add(g); res[slots[i].idx] = state.groups[g][2];
+      if (bt(i + 1)) return true;
+      used.delete(g); delete res[slots[i].idx];
+    }
+    return false;
+  }
+  return bt(0) ? res : "impossible";
+}
+
+function seedR32(state) {
+  const thirdMap = assignThirds(state);
+  return R32.map((d, i) => {
+    const resolve = side => {
+      if (side.k === "W") return state.groups[side.g][0] ?? null;
+      if (side.k === "RU") return state.groups[side.g][1] ?? null;
+      return (thirdMap && thirdMap !== "impossible") ? (thirdMap[i] ?? null) : null;
+    };
+    return [resolve(d.a), resolve(d.b)];
+  });
+}
+
+function koCompetitors(state, seeds, r, m) {
+  if (r === 0) return seeds[m];
+  return [state.ko[r - 1][2 * m], state.ko[r - 1][2 * m + 1]];
+}
+
+// Clear any knockout pick that is no longer one of its match's competitors.
+function validateKO(state) {
+  const seeds = seedR32(state);
+  for (let r = 0; r < 5; r++) for (let m = 0; m < KO_MATCHES[r]; m++) {
+    const c = koCompetitors(state, seeds, r, m);
+    if (state.ko[r][m] !== null && !c.includes(state.ko[r][m])) state.ko[r][m] = null;
+  }
+  return seeds;
+}
+
+function setKOPick(state, r, m, team) {
+  state.ko[r][m] = team;
+  validateKO(state);
+}
+
+// ---------- Qualification & scoring ----------
+// Returns { qualified: Set, eliminated: Set } from a state's group + thirds picks.
+function qualification(state) {
+  const qualified = new Set(), eliminated = new Set();
+  const thirdsComplete = state.thirds.length === 8;
+  for (let g = 0; g < 12; g++) {
+    const order = state.groups[g];
+    if (order[0] != null) qualified.add(order[0]);
+    if (order[1] != null) qualified.add(order[1]);
+    if (order[3] != null) eliminated.add(order[3]);
+    if (order[2] != null) {
+      if (state.thirds.includes(g)) qualified.add(order[2]);
+      else if (thirdsComplete && order.length === 4) eliminated.add(order[2]);
+    }
+  }
+  return { qualified, eliminated };
+}
+
+function scoreState(state, act) {
+  const myQ = qualification(state).qualified;
+  const actQ = qualification(act).qualified;
+  let gPts = 0;
+  for (const t of myQ) if (actQ.has(t)) gPts++;
+  let koPts = 0, koCorrect = 0;
+  for (let r = 0; r < 5; r++) for (let m = 0; m < KO_MATCHES[r]; m++) {
+    if (state.ko[r][m] !== null && state.ko[r][m] === act.ko[r][m]) { koPts += KO_POINTS[r]; koCorrect++; }
+  }
+  return { gPts, koPts, koCorrect, total: gPts + koPts };
+}
+
+// ---------- Rendering: groups ----------
+function renderGroups(containerId, state, opts) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = "";
+  const cmp = opts.compareWith ? qualification(opts.compareWith) : null;
+  const mineQ = cmp ? qualification(state) : null;
+  GROUPS.forEach((grp, gi) => {
+    const card = document.createElement("div");
+    card.className = "group-card";
+    const h = document.createElement("h4");
+    h.innerHTML = `<span>Group ${grp.letter}</span>`;
+    if (opts.editable && state.groups[gi].length) {
+      const clr = document.createElement("span");
+      clr.className = "clear-grp"; clr.textContent = "clear";
+      clr.addEventListener("click", () => { state.groups[gi] = []; opts.onChange(); });
+      h.appendChild(clr);
+    }
+    card.appendChild(h);
+    grp.teams.forEach((_, slot) => {
+      const ti = gi * 4 + slot;
+      const t = TEAMS[ti];
+      const rank = state.groups[gi].indexOf(ti);
+      const row = document.createElement("div");
+      row.className = "g-team";
+      let mark = "";
+      if (cmp && mineQ && mineQ.qualified.has(ti)) {
+        if (cmp.qualified.has(ti)) mark = `<span class="mark ok">✓</span>`;
+        else if (cmp.eliminated.has(ti)) mark = `<span class="mark bad">✗</span>`;
+      }
+      row.innerHTML = `<span class="rank-badge ${rank >= 0 ? "r" + rank : ""}">${rank >= 0 ? rank + 1 : "·"}</span>
+        <span class="flag">${t.f}</span><span class="name">${t.n}</span>${mark}`;
+      if (opts.editable) {
+        row.addEventListener("click", () => {
+          const order = state.groups[gi];
+          const pos = order.indexOf(ti);
+          if (pos >= 0) order.length = pos;            // re-pick from this rank
+          else if (order.length < 4) order.push(ti);
+          if (order.length === 3) {                    // 4th place is forced
+            for (let s = 0; s < 4; s++) if (!order.includes(gi * 4 + s)) order.push(gi * 4 + s);
+          }
+          opts.onChange();
+        });
+      }
+      card.appendChild(row);
+    });
+    wrap.appendChild(card);
+  });
+}
+
+// ---------- Rendering: thirds selector ----------
+function renderThirds(containerId, counterId, state, opts) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = "";
+  GROUPS.forEach((grp, gi) => {
+    const third = state.groups[gi][2];
+    const card = document.createElement("div");
+    const sel = state.thirds.includes(gi);
+    card.className = "third-card" + (sel ? " sel" : "") + (third == null ? " disabled" : "");
+    card.innerHTML = third == null
+      ? `<span class="grp-letter">${grp.letter}</span><span>rank the group first</span>`
+      : `<span class="grp-letter">${grp.letter}</span><span class="flag">${TEAMS[third].f}</span><span>${TEAMS[third].n}</span><span style="margin-left:auto">${sel ? "✅" : ""}</span>`;
+    if (opts.editable && third != null) {
+      card.addEventListener("click", () => {
+        const i = state.thirds.indexOf(gi);
+        if (i >= 0) state.thirds.splice(i, 1);
+        else if (state.thirds.length < 8) state.thirds.push(gi);
+        else { toast("You already picked 8 — unselect one first."); return; }
+        opts.onChange();
+      });
+    }
+    wrap.appendChild(card);
+  });
+  const counter = document.getElementById(counterId);
+  counter.innerHTML = `<b>${state.thirds.length}</b> / 8 selected`;
+  counter.classList.toggle("over", state.thirds.length > 8);
+}
+
+// ---------- Rendering: knockout bracket ----------
+function slotPlaceholder(r, m, which) {
+  if (r !== 0) return "— TBD —";
+  const side = which === 0 ? R32[m].a : R32[m].b;
+  if (side.k === "W") return `Winner Group ${L(side.g)}`;
+  if (side.k === "RU") return `2nd Group ${L(side.g)}`;
+  return `3rd: ${side.gs.map(L).join("/")}`;
+}
+
+function renderBracket(containerId, state, opts) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  const seeds = seedR32(state);
+  const cmpSeeds = opts.compareWith ? seedR32(opts.compareWith) : null;
+  for (let r = 0; r < 5; r++) {
+    const col = document.createElement("div");
+    col.className = "round";
+    col.innerHTML = `<h3>${KO_ROUND_NAMES[r]}</h3>`;
+    for (let m = 0; m < KO_MATCHES[r]; m++) {
+      const match = document.createElement("div");
+      match.className = "match";
+      const comps = koCompetitors(state, seeds, r, m);
+      comps.forEach((team, which) => {
+        const slot = document.createElement("div");
+        slot.className = "slot";
+        if (team === null) {
+          slot.classList.add("empty");
+          slot.innerHTML = `<span class="name">${slotPlaceholder(r, m, which)}</span>`;
+        } else {
+          const t = TEAMS[team];
+          slot.innerHTML = `<span class="flag">${t.f}</span><span class="name">${t.n}</span>`;
+          if (state.ko[r][m] === team) slot.classList.add("picked");
+          if (opts.compareWith && state.ko[r][m] === team && opts.compareWith.ko[r][m] !== null) {
+            slot.classList.add(team === opts.compareWith.ko[r][m] ? "correct" : "wrong");
+          }
+          if (opts.editable) slot.addEventListener("click", () => { setKOPick(state, r, m, team); opts.onChange(); });
+        }
+        match.appendChild(slot);
+      });
+      col.appendChild(match);
+    }
+    container.appendChild(col);
+  }
+  const champCol = document.createElement("div");
+  champCol.className = "round";
+  const champ = state.ko[4][0];
+  champCol.innerHTML = `<div class="champion-box"><div class="label">🏆 Champion</div>
+    <div class="champ">${champ !== null ? TEAMS[champ].f + " " + TEAMS[champ].n : "?"}</div></div>`;
+  container.appendChild(champCol);
+}
+
+// ---------- Leaderboard ----------
+function renderLeaderboard() {
+  const body = document.getElementById("leader-body");
+  const entries = [
+    { name: (myName.trim() || "You") + " (you)", state: my, me: true },
+    ...friends.map((f, i) => ({ name: f.name, state: normalizeState(f.state), idx: i }))
+  ].map(e => ({ ...e, ...scoreState(e.state, actual) }))
+   .sort((a, b) => b.total - a.total);
+
+  body.innerHTML = "";
+  entries.forEach((e, i) => {
+    const tr = document.createElement("tr");
+    if (i < 3) tr.className = "rk-" + (i + 1);
+    const champ = e.state.ko[4][0];
+    tr.innerHTML = `
+      <td class="medal">${i >= 3 ? (i + 1) + "." : ""}</td>
+      <td>${escapeHtml(e.name)}</td>
+      <td>${champ !== null ? TEAMS[champ].f + " " + TEAMS[champ].n : "—"}</td>
+      <td>${e.gPts} pts</td>
+      <td>${e.koPts} pts</td>
+      <td class="pts">${e.total}</td>
+      <td>${e.me ? "" : `<button class="btn danger" data-remove="${e.idx}">✕</button>`}</td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll("[data-remove]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      friends.splice(Number(btn.dataset.remove), 1);
+      store.save("wc26_friends", friends);
+      renderLeaderboard();
+    });
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+// ---------- Re-render orchestration ----------
+function renderMy() {
+  validateKO(my);
+  store.save("wc26_my", my);
+  renderGroups("my-groups", my, { editable: true, compareWith: actual, onChange: renderMy });
+  renderThirds("my-thirds", "my-thirds-counter", my, { editable: true, onChange: renderMy });
+  renderBracket("my-bracket", my, { editable: true, compareWith: actual, onChange: renderMy });
+  const hint = document.getElementById("my-ko-hint");
+  if (assignThirds(my) === "impossible") {
+    hint.textContent = "⚠️ That combination of third-place teams can't be slotted into FIFA's bracket constraints — try a different mix.";
+  } else {
+    hint.textContent = "The Round of 32 fills in automatically from your group picks, paired exactly how FIFA lays out the bracket. Click winners to advance them.";
+  }
+  renderLeaderboard();
+}
+
+function renderActual() {
+  validateKO(actual);
+  store.save("wc26_actual", actual);
+  renderGroups("res-groups", actual, { editable: true, onChange: renderActual });
+  renderThirds("res-thirds", "res-thirds-counter", actual, { editable: true, onChange: renderActual });
+  renderBracket("res-bracket", actual, { editable: true, onChange: renderActual });
+  renderMyView();
+}
+function renderMyView() { renderMy(); } // my view depends on actuals for ✓/✗
+
+// ---------- Share codes ----------
+function encodeCode(obj) { return "WC26:" + btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
+function decodeCode(str) {
+  const s = str.trim();
+  if (!s.startsWith("WC26:")) throw new Error("bad prefix");
+  return JSON.parse(decodeURIComponent(escape(atob(s.slice(5)))));
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  }
+}
+
+// ---------- Wire up ----------
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
+    document.getElementById("page-" + btn.dataset.page).classList.add("visible");
+  });
+});
+
+const nameInput = document.getElementById("player-name");
+nameInput.value = myName;
+nameInput.addEventListener("input", () => { myName = nameInput.value; store.save("wc26_name", myName); renderLeaderboard(); });
+
+document.getElementById("share-btn").addEventListener("click", async () => {
+  if (!myName.trim()) { toast("Enter your name first!"); nameInput.focus(); return; }
+  if (my.ko[4][0] === null) { toast("Finish your bracket first — pick a champion!"); return; }
+  const code = encodeCode({ type: "bracket", name: myName.trim(), state: my });
+  (await copyText(code)) ? toast("Share code copied! Send it to your friends 📤") : toast("Couldn't copy — try again.");
+});
+
+document.getElementById("share-results-btn").addEventListener("click", async () => {
+  const code = encodeCode({ type: "results", state: actual });
+  (await copyText(code)) ? toast("Results code copied!") : toast("Couldn't copy.");
+});
+
+document.getElementById("reset-my").addEventListener("click", () => {
+  if (!confirm("Clear ALL your picks (groups, thirds, and bracket)?")) return;
+  my = emptyState(); renderMy();
+});
+
+document.getElementById("reset-results").addEventListener("click", () => {
+  if (!confirm("Clear all actual results?")) return;
+  actual = emptyState(); renderActual();
+});
+
+document.getElementById("import-btn").addEventListener("click", () => {
+  const area = document.getElementById("import-area");
+  let data;
+  try { data = decodeCode(area.value); }
+  catch { toast("That code doesn't look right — check you copied the whole thing."); return; }
+  if (data.type === "results") {
+    actual = normalizeState(data.state);
+    renderActual();
+    toast("Actual results updated! ✅");
+  } else if (data.type === "bracket" && data.name) {
+    const name = String(data.name).slice(0, 20);
+    const entry = { name, state: normalizeState(data.state) };
+    const existing = friends.findIndex(f => f.name === name);
+    if (existing >= 0) friends[existing] = entry; else friends.push(entry);
+    store.save("wc26_friends", friends);
+    renderLeaderboard();
+    toast(`${name}'s bracket added! 🎉`);
+  } else {
+    toast("Unrecognized code."); return;
+  }
+  area.value = "";
+});
+
+renderActual(); // also renders My view + leaderboard
+</script>
+</body>
+</html>
